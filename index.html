@@ -1,31 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valentine's Day</title>
+    <title>Валентинка 💕</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #ff6b9d, #c44569, #f7931e);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        #generator, #valentines { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); margin-bottom: 30px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        input { 
+            padding: 16px 24px; 
+            font-size: 1.4rem; 
+            width: 90%; 
+            max-width: 400px; 
+            border-radius: 50px; 
+            border: none; 
+            margin: 20px 0; 
+            text-align: center; 
+        }
+        button { 
+            padding: 16px 40px; 
+            font-size: 1.4rem; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            margin: 15px; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3); 
+            transition: all 0.25s; 
+        }
+        #createBtn { background: #00ff9d; color: black; font-weight: bold; }
+        #createBtn:hover { transform: scale(1.08); }
+        #qrContainer { margin: 30px 0; background: white; padding: 15px; border-radius: 16px; }
+        .hearts { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
+        .heart {
+            position: absolute;
+            font-size: 1.8rem;
+            animation: fall linear forwards;
+            opacity: 0.9;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(var(--x)) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) translateX(calc(var(--x) + var(--drift))) rotate(720deg); opacity: 0; }
+        }
+        .hidden { display: none !important; }
+        @media (max-width: 500px) {
+            h1 { font-size: 2.8rem; }
+            button { padding: 14px 30px; font-size: 1.2rem; }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to the Valentine's Day Celebration!</h1>
-    </header>
-    <main>
-        <section>
-            <h2>Our Love Story</h2>
-            <p>Once upon a time, in a world full of magic and love...</p>
-        </section>
-        <section>
-            <h2>Gift Ideas</h2>
-            <ul>
-                <li>Chocolates</li>
-                <li>Flowers</li>
-                <li>Candle Lit Dinner</li>
-                <li>Personalized Gifts</li>
-            </ul>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Valentine's Day Celebration</p>
-    </footer>
+
+<div class="hearts" id="hearts"></div>
+
+<div id="generator">
+    <h1>Створи свою валентинку 💕</h1>
+    <input type="text" id="nameInput" placeholder="Введи ім'я..." autocomplete="off">
+    <button id="createBtn">Створити мою валентинку →</button>
+</div>
+
+<div id="valentines" class="hidden">
+    <h1 id="mainTitle">Ти будеш моєю валентинкою, <span id="valName" style="color:#fff200;">...</span>? 💕</h1>
+    
+    <div class="buttons">
+        <button class="yes" onclick="yesClick()">Так 😍</button>
+        <button class="no" id="noBtn" onclick="noClick()">Ні ❌</button>
+    </div>
+
+    <div id="qrContainer">
+        <div id="qrcode"></div>
+        <p style="color:#333; margin-top:10px;">Скануй, щоб відкрити</p>
+    </div>
+
+    <button onclick="downloadQR()">Скачати QR</button>
+    <button onclick="copyLink()">Скопіювати посилання</button>
+</div>
+
+<script>
+// === Параметри ===
+const baseUrl = window.location.origin + window.location.pathname;
+let name = new URLSearchParams(window.location.search).get('name');
+name = name ? decodeURIComponent(name).trim() : '';
+
+// === Якщо є ім'я в URL — одразу показуємо валентинку ===
+const generator = document.getElementById('generator');
+const valentines = document.getElementById('valentines');
+const mainTitle = document.getElementById('mainTitle');
+const valNameSpan = document.getElementById('valName');
+const nameInput = document.getElementById('nameInput');
+const qrDiv = document.getElementById('qrcode');
+
+if (name && name.length > 0) {
+    showValentine(name);
+} else {
+    generator.classList.remove('hidden');
+}
+
+// === Генерація сердечок ===
+function createHeart() {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.innerHTML = Math.random() > 0.5 ? '💕' : '❤️';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.setProperty('--x', (Math.random() * 40 - 20) + 'vw');
+    heart.style.setProperty('--drift', (Math.random() * 60 - 30) + 'vw');
+    heart.style.animationDuration = (6 + Math.random() * 8) + 's';
+    heart.style.animationDelay = Math.random() * 3 + 's';
+    document.getElementById('hearts').appendChild(heart);
+    setTimeout(() => heart.remove(), 15000);
+}
+
+setInterval(createHeart, 600);
+
+// === Показати валентинку ===
+function showValentine(nameVal) {
+    name = nameVal;
+    valNameSpan.textContent = name;
+    mainTitle.innerHTML = `Ти будеш моєю валентинкою, <span style="color:#fff200;">${name}</span>? 💕`;
+    
+    generator.classList.add('hidden');
+    valentines.classList.remove('hidden');
+
+    // QR-код з посиланням
+    const link = `${baseUrl}?name=${encodeURIComponent(name)}`;
+    qrDiv.innerHTML = '';
+    new QRCode(qrDiv, {
+        text: link,
+        width: 220,
+        height: 220,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
+
+// === Кнопка створення ===
+document.getElementById('createBtn').onclick = () => {
+    const inputVal = nameInput.value.trim();
+    if (inputVal.length < 1) {
+        alert("Введи ім'я будь ласка 💕");
+        return;
+    }
+    showValentine(inputVal);
+};
+
+// === Так / Ні логіка (можна розширити як раніше) ===
+function yesClick() {
+    alert("Я знав(ла), що скажеш ТАК! 😍💖");
+    // Тут можна додати сердечка, зміну тексту тощо
+}
+
+function noClick() {
+    alert("Ну як то ні? 😭 Спробуй ще раз...");
+    // Можна зробити кнопку, що тікає — якщо хочеш
+}
+
+// === Скачати QR ===
+function downloadQR() {
+    const canvas = qrDiv.querySelector('canvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `valentine-${name || 'secret'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
+// === Скопіювати посилання ===
+function copyLink() {
+    const link = `${baseUrl}?name=${encodeURIComponent(name)}`;
+    navigator.clipboard.writeText(link).then(() => {
+        alert("Посилання скопійовано! 💕");
+    }).catch(() => {
+        alert("Не вийшло скопіювати :(\nСкопіюй вручну:\n" + link);
+    });
+}
+</script>
 </body>
 </html>
