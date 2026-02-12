@@ -15,39 +15,63 @@
             overflow-x: hidden;
             user-select: none;
         }
-        #generator, #valentines { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh; 
-            padding: 20px; 
-            text-align: center; 
+        .flags {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
         }
-        h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); margin-bottom: 30px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        input { 
-            padding: 16px 24px; 
-            font-size: 1.4rem; 
-            width: 90%; 
-            max-width: 400px; 
-            border-radius: 50px; 
-            border: none; 
-            margin: 20px 0; 
-            text-align: center; 
+        .flag-btn {
+            width: 44px;
+            height: 33px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        button { 
-            padding: 16px 40px; 
-            font-size: 1.4rem; 
-            border: none; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            margin: 15px; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3); 
-            transition: all 0.25s; 
+        .flag-btn:hover { transform: scale(1.08); border-color: white; }
+        .flag-btn img { width: 100%; height: 100%; object-fit: cover; }
+        .flag-btn.active { border-color: white; box-shadow: 0 0 0 3px rgba(255,255,255,0.6); }
+
+        #generator, #valentines {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { font-size: clamp(2.4rem, 8vw, 4.5rem); margin-bottom: 30px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .name { color: #fff200; text-shadow: 0 0 15px #ff00aa; }
+        input {
+            padding: 16px 24px;
+            font-size: 1.4rem;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 50px;
+            border: none;
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            padding: 14px 38px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: all 0.25s;
         }
         #createBtn { background: #00ff9d; color: black; font-weight: bold; }
-        #createBtn:hover { transform: scale(1.08); }
-        #qrContainer { margin: 30px 0; background: white; padding: 15px; border-radius: 16px; }
+        #createBtn:hover { transform: scale(1.07); }
+        .yes { background: #00ff9d; color: black; font-weight: bold; }
+        .no  { background: #ff4444; color: white; }
+        #qrContainer { margin: 35px 0; background: white; padding: 18px; border-radius: 16px; }
         .hearts { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
         .heart {
             position: absolute;
@@ -61,12 +85,17 @@
         }
         .hidden { display: none !important; }
         @media (max-width: 500px) {
-            h1 { font-size: 2.8rem; }
-            button { padding: 14px 30px; font-size: 1.2rem; }
+            h1 { font-size: 2.6rem; }
+            button { padding: 12px 30px; font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
+
+<div class="flags">
+    <button class="flag-btn active" data-lang="uk" onclick="setLang('uk')"><img src="https://flagcdn.com/w40/ua.png" alt="UA"></button>
+    <button class="flag-btn" data-lang="en" onclick="setLang('en')"><img src="https://flagcdn.com/w40/gb.png" alt="GB"></button>
+</div>
 
 <div class="hearts" id="hearts"></div>
 
@@ -77,16 +106,16 @@
 </div>
 
 <div id="valentines" class="hidden">
-    <h1 id="mainTitle">Ти будеш моєю валентинкою, <span id="valName" style="color:#fff200;">...</span>? 💕</h1>
+    <h1 id="mainTitle">Ти будеш моєю валентинкою, <span class="name" id="valName">...</span>? 💕</h1>
     
-    <div class="buttons">
-        <button class="yes" onclick="yesClick()">Так 😍</button>
-        <button class="no" id="noBtn" onclick="noClick()">Ні ❌</button>
+    <div>
+        <button class="yes" id="yesBtn">Так 😍</button>
+        <button class="no" id="noBtn">Ні ❌</button>
     </div>
 
     <div id="qrContainer">
         <div id="qrcode"></div>
-        <p style="color:#333; margin-top:10px;">Скануй, щоб відкрити</p>
+        <p style="color:#333; margin-top:12px;">Скануй, щоб відкрити</p>
     </div>
 
     <button onclick="downloadQR()">Скачати QR</button>
@@ -94,52 +123,85 @@
 </div>
 
 <script>
-// === Параметри ===
-const baseUrl = window.location.origin + window.location.pathname;
+const texts = {
+    uk: {
+        title: "Ти будеш моєю валентинкою, ",
+        titleEnd: "? 💕",
+        yes: "Так 😍",
+        no: "Ні ❌",
+        create: "Створити мою валентинку →",
+        placeholder: "Введи ім'я...",
+        qrText: "Скануй, щоб відкрити"
+    },
+    en: {
+        title: "Will you be my valentine, ",
+        titleEnd: "? 💕",
+        yes: "Yes 😍",
+        no: "No ❌",
+        create: "Create my valentine →",
+        placeholder: "Enter name...",
+        qrText: "Scan to open"
+    }
+};
+
+let lang = 'uk';
 let name = new URLSearchParams(window.location.search).get('name');
 name = name ? decodeURIComponent(name).trim() : '';
 
-// === Якщо є ім'я в URL — одразу показуємо валентинку ===
 const generator = document.getElementById('generator');
 const valentines = document.getElementById('valentines');
 const mainTitle = document.getElementById('mainTitle');
 const valNameSpan = document.getElementById('valName');
 const nameInput = document.getElementById('nameInput');
+const yesBtn = document.getElementById('yesBtn');
+const noBtn = document.getElementById('noBtn');
+const createBtn = document.getElementById('createBtn');
 const qrDiv = document.getElementById('qrcode');
+const qrTextP = document.querySelector('#qrContainer p');
 
-if (name && name.length > 0) {
-    showValentine(name);
-} else {
-    generator.classList.remove('hidden');
+function setLang(newLang) {
+    lang = newLang;
+    document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.flag-btn[data-lang="${lang}"]`).classList.add('active');
+
+    if (name && name.length > 0) {
+        // уже на странице валентинки
+        mainTitle.innerHTML = `${texts[lang].title}<span class="name">${name}</span>${texts[lang].titleEnd}`;
+        yesBtn.textContent = texts[lang].yes;
+        noBtn.textContent = texts[lang].no;
+    } else {
+        // генератор
+        createBtn.textContent = texts[lang].create;
+        nameInput.placeholder = texts[lang].placeholder;
+    }
+
+    qrTextP.textContent = texts[lang].qrText;
 }
 
-// === Генерація сердечок ===
 function createHeart() {
-    const heart = document.createElement('div');
-    heart.className = 'heart';
-    heart.innerHTML = Math.random() > 0.5 ? '💕' : '❤️';
-    heart.style.left = Math.random() * 100 + 'vw';
-    heart.style.setProperty('--x', (Math.random() * 40 - 20) + 'vw');
-    heart.style.setProperty('--drift', (Math.random() * 60 - 30) + 'vw');
-    heart.style.animationDuration = (6 + Math.random() * 8) + 's';
-    heart.style.animationDelay = Math.random() * 3 + 's';
-    document.getElementById('hearts').appendChild(heart);
-    setTimeout(() => heart.remove(), 15000);
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.innerHTML = Math.random() > 0.5 ? '💕' : '❤️';
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.setProperty('--x', (Math.random() * 40 - 20) + 'vw');
+    h.style.setProperty('--drift', (Math.random() * 60 - 30) + 'vw');
+    h.style.animationDuration = (6 + Math.random() * 8) + 's';
+    h.style.animationDelay = Math.random() * 4 + 's';
+    document.getElementById('hearts').appendChild(h);
+    setTimeout(() => h.remove(), 16000);
 }
 
-setInterval(createHeart, 600);
+setInterval(createHeart, 700);
 
-// === Показати валентинку ===
 function showValentine(nameVal) {
     name = nameVal;
     valNameSpan.textContent = name;
-    mainTitle.innerHTML = `Ти будеш моєю валентинкою, <span style="color:#fff200;">${name}</span>? 💕`;
+    mainTitle.innerHTML = `${texts[lang].title}<span class="name">${name}</span>${texts[lang].titleEnd}`;
     
     generator.classList.add('hidden');
     valentines.classList.remove('hidden');
 
-    // QR-код з посиланням
-    const link = `${baseUrl}?name=${encodeURIComponent(name)}`;
+    const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}`;
     qrDiv.innerHTML = '';
     new QRCode(qrDiv, {
         text: link,
@@ -151,46 +213,49 @@ function showValentine(nameVal) {
     });
 }
 
-// === Кнопка створення ===
 document.getElementById('createBtn').onclick = () => {
-    const inputVal = nameInput.value.trim();
-    if (inputVal.length < 1) {
-        alert("Введи ім'я будь ласка 💕");
+    const val = nameInput.value.trim();
+    if (!val) {
+        alert(lang === 'uk' ? "Введи ім'я будь ласка 💕" : "Please enter a name 💕");
         return;
     }
-    showValentine(inputVal);
+    showValentine(val);
 };
 
-// === Так / Ні логіка (можна розширити як раніше) ===
-function yesClick() {
-    alert("Я знав(ла), що скажеш ТАК! 😍💖");
-    // Тут можна додати сердечка, зміну тексту тощо
-}
+yesBtn.onclick = () => {
+    alert(lang === 'uk' ? "Я знав(ла), що скажеш ТАК! 😍💖" : "I knew you'd say YES! 😍💖");
+};
 
-function noClick() {
-    alert("Ну як то ні? 😭 Спробуй ще раз...");
-    // Можна зробити кнопку, що тікає — якщо хочеш
-}
+noBtn.onclick = () => {
+    alert(lang === 'uk' ? "Ну як то ні? 😭" : "How can it be no? 😭");
+};
 
-// === Скачати QR ===
 function downloadQR() {
     const canvas = qrDiv.querySelector('canvas');
     if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = `valentine-${name || 'secret'}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    const a = document.createElement('a');
+    a.download = `valentine-${name || 'secret'}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
 }
 
-// === Скопіювати посилання ===
 function copyLink() {
-    const link = `${baseUrl}?name=${encodeURIComponent(name)}`;
+    const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}`;
     navigator.clipboard.writeText(link).then(() => {
-        alert("Посилання скопійовано! 💕");
+        alert(lang === 'uk' ? "Посилання скопійовано! 💕" : "Link copied! 💕");
     }).catch(() => {
-        alert("Не вийшло скопіювати :(\nСкопіюй вручну:\n" + link);
+        alert("Не вийшло скопіювати\n" + link);
     });
 }
+
+// INIT
+if (name && name.length > 0) {
+    showValentine(name);
+} else {
+    generator.classList.remove('hidden');
+}
+
+setLang('uk');
 </script>
 </body>
 </html>
