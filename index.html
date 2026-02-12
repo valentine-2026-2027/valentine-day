@@ -8,10 +8,10 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #ff6b9d, #c44569, #f7931e);
-            min-height: 100vh;
             color: white;
+            min-height: 100vh;
             overflow-x: hidden;
             user-select: none;
         }
@@ -24,17 +24,17 @@
             z-index: 1000;
         }
         .flag-btn {
-            width: 44px;
-            height: 33px;
+            width: 46px;
+            height: 34px;
             border: 2px solid rgba(255,255,255,0.5);
             border-radius: 6px;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .flag-btn:hover { transform: scale(1.08); border-color: white; }
+        .flag-btn:hover { transform: scale(1.1); border-color: white; }
         .flag-btn img { width: 100%; height: 100%; object-fit: cover; }
-        .flag-btn.active { border-color: white; box-shadow: 0 0 0 3px rgba(255,255,255,0.6); }
+        .flag-btn.active { border-color: white; box-shadow: 0 0 0 3px rgba(255,255,255,0.7); }
 
         #generator, #valentines {
             display: flex;
@@ -42,51 +42,75 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 15px;
             text-align: center;
         }
-        h1 { font-size: clamp(2.4rem, 8vw, 4.5rem); margin-bottom: 30px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .name { color: #fff200; text-shadow: 0 0 15px #ff00aa; }
+        h1 {
+            font-size: clamp(2.3rem, 7.5vw, 4.2rem);
+            margin-bottom: 30px;
+            line-height: 1.2;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .name { color: #fff200; text-shadow: 0 0 20px #ff00aa; }
         input {
             padding: 16px 24px;
             font-size: 1.4rem;
-            width: 90%;
+            width: 100%;
             max-width: 420px;
-            border-radius: 50px;
+            border-radius: 999px;
             border: none;
             margin: 20px 0;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        button {
-            padding: 14px 38px;
-            font-size: 1.3rem;
+        .btn {
+            padding: 16px 48px;
+            font-size: 1.4rem;
+            font-weight: bold;
             border: none;
-            border-radius: 50px;
+            border-radius: 999px;
             cursor: pointer;
-            margin: 12px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            margin: 12px 8px;
+            min-width: 160px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
             transition: all 0.25s;
         }
-        #createBtn { background: #00ff9d; color: black; font-weight: bold; }
-        #createBtn:hover { transform: scale(1.07); }
-        .yes { background: #00ff9d; color: black; font-weight: bold; }
+        .btn:active { transform: scale(0.96); }
+        #createBtn { background: #00ff9d; color: #000; }
+        #createBtn:hover { transform: scale(1.06); }
+        .yes { background: #00ff9d; color: #000; }
         .no  { background: #ff4444; color: white; }
-        #qrContainer { margin: 35px 0; background: white; padding: 18px; border-radius: 16px; }
-        .hearts { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
+
+        #qrContainer {
+            margin: 40px 0 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .hearts {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+        }
         .heart {
             position: absolute;
-            font-size: 1.8rem;
+            font-size: 2rem;
             animation: fall linear forwards;
-            opacity: 0.9;
+            opacity: 0.85;
         }
         @keyframes fall {
-            0% { transform: translateY(-10vh) translateX(var(--x)) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) translateX(calc(var(--x) + var(--drift))) rotate(720deg); opacity: 0; }
+            0% { transform: translateY(-15vh) translateX(var(--x)) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(115vh) translateX(calc(var(--x) + var(--drift))) rotate(1080deg); opacity: 0; }
         }
         .hidden { display: none !important; }
+
         @media (max-width: 500px) {
-            h1 { font-size: 2.6rem; }
-            button { padding: 12px 30px; font-size: 1.1rem; }
+            .btn { padding: 14px 36px; font-size: 1.2rem; min-width: 140px; }
+            h1 { font-size: 2.4rem; }
+            input { font-size: 1.2rem; padding: 14px 20px; }
         }
     </style>
 </head>
@@ -102,24 +126,24 @@
 <div id="generator">
     <h1>Створи свою валентинку 💕</h1>
     <input type="text" id="nameInput" placeholder="Введи ім'я..." autocomplete="off">
-    <button id="createBtn">Створити мою валентинку →</button>
+    <button id="createBtn" class="btn">Створити →</button>
 </div>
 
 <div id="valentines" class="hidden">
     <h1 id="mainTitle">Ти будеш моєю валентинкою, <span class="name" id="valName">...</span>? 💕</h1>
-    
+
     <div>
-        <button class="yes" id="yesBtn">Так 😍</button>
-        <button class="no" id="noBtn">Ні ❌</button>
+        <button id="yesBtn" class="btn yes">Так 😍</button>
+        <button id="noBtn" class="btn no">Ні ❌</button>
     </div>
 
     <div id="qrContainer">
         <div id="qrcode"></div>
-        <p style="color:#333; margin-top:12px;">Скануй, щоб відкрити</p>
+        <p id="qrText" style="color:#333; margin-top:12px;">Скануй, щоб відкрити</p>
     </div>
 
-    <button onclick="downloadQR()">Скачати QR</button>
-    <button onclick="copyLink()">Скопіювати посилання</button>
+    <button class="btn" onclick="downloadQR()">Скачати QR</button>
+    <button class="btn" onclick="copyLink()">Скопіювати посилання</button>
 </div>
 
 <script>
@@ -129,18 +153,22 @@ const texts = {
         titleEnd: "? 💕",
         yes: "Так 😍",
         no: "Ні ❌",
-        create: "Створити мою валентинку →",
+        create: "Створити →",
         placeholder: "Введи ім'я...",
-        qrText: "Скануй, щоб відкрити"
+        qrText: "Скануй, щоб відкрити",
+        alertYes: "Я знав(ла), що скажеш ТАК! 😍💖",
+        alertNo: "Ну як то ні? 😭"
     },
     en: {
         title: "Will you be my valentine, ",
         titleEnd: "? 💕",
         yes: "Yes 😍",
         no: "No ❌",
-        create: "Create my valentine →",
+        create: "Create →",
         placeholder: "Enter name...",
-        qrText: "Scan to open"
+        qrText: "Scan to open",
+        alertYes: "I knew you'd say YES! 😍💖",
+        alertNo: "How can it be no? 😭"
     }
 };
 
@@ -157,20 +185,18 @@ const yesBtn = document.getElementById('yesBtn');
 const noBtn = document.getElementById('noBtn');
 const createBtn = document.getElementById('createBtn');
 const qrDiv = document.getElementById('qrcode');
-const qrTextP = document.querySelector('#qrContainer p');
+const qrTextP = document.getElementById('qrText');
 
 function setLang(newLang) {
     lang = newLang;
     document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
     document.querySelector(`.flag-btn[data-lang="${lang}"]`).classList.add('active');
 
-    if (name && name.length > 0) {
-        // уже на странице валентинки
+    if (name) {
         mainTitle.innerHTML = `${texts[lang].title}<span class="name">${name}</span>${texts[lang].titleEnd}`;
         yesBtn.textContent = texts[lang].yes;
         noBtn.textContent = texts[lang].no;
     } else {
-        // генератор
         createBtn.textContent = texts[lang].create;
         nameInput.placeholder = texts[lang].placeholder;
     }
@@ -183,34 +209,21 @@ function createHeart() {
     h.className = 'heart';
     h.innerHTML = Math.random() > 0.5 ? '💕' : '❤️';
     h.style.left = Math.random() * 100 + 'vw';
-    h.style.setProperty('--x', (Math.random() * 40 - 20) + 'vw');
-    h.style.setProperty('--drift', (Math.random() * 60 - 30) + 'vw');
-    h.style.animationDuration = (6 + Math.random() * 8) + 's';
-    h.style.animationDelay = Math.random() * 4 + 's';
+    h.style.setProperty('--x', (Math.random() * 50 - 25) + 'vw');
+    h.style.setProperty('--drift', (Math.random() * 80 - 40) + 'vw');
+    h.style.animationDuration = (7 + Math.random() * 9) + 's';
+    h.style.animationDelay = Math.random() * 5 + 's';
     document.getElementById('hearts').appendChild(h);
-    setTimeout(() => h.remove(), 16000);
+    setTimeout(() => h.remove(), 18000);
 }
 
-setInterval(createHeart, 700);
+setInterval(createHeart, 800);
 
 function showValentine(nameVal) {
     name = nameVal;
-    valNameSpan.textContent = name;
-    mainTitle.innerHTML = `${texts[lang].title}<span class="name">${name}</span>${texts[lang].titleEnd}`;
-    
-    generator.classList.add('hidden');
-    valentines.classList.remove('hidden');
-
-    const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}`;
-    qrDiv.innerHTML = '';
-    new QRCode(qrDiv, {
-        text: link,
-        width: 220,
-        height: 220,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
+    // Redirect замість показу — чиста сторінка
+    const url = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}`;
+    window.location.href = url;
 }
 
 document.getElementById('createBtn').onclick = () => {
@@ -222,13 +235,8 @@ document.getElementById('createBtn').onclick = () => {
     showValentine(val);
 };
 
-yesBtn.onclick = () => {
-    alert(lang === 'uk' ? "Я знав(ла), що скажеш ТАК! 😍💖" : "I knew you'd say YES! 😍💖");
-};
-
-noBtn.onclick = () => {
-    alert(lang === 'uk' ? "Ну як то ні? 😭" : "How can it be no? 😭");
-};
+yesBtn.onclick = () => alert(texts[lang].alertYes);
+noBtn.onclick = () => alert(texts[lang].alertNo);
 
 function downloadQR() {
     const canvas = qrDiv.querySelector('canvas');
@@ -243,14 +251,26 @@ function copyLink() {
     const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}`;
     navigator.clipboard.writeText(link).then(() => {
         alert(lang === 'uk' ? "Посилання скопійовано! 💕" : "Link copied! 💕");
-    }).catch(() => {
-        alert("Не вийшло скопіювати\n" + link);
-    });
+    }).catch(() => alert(link));
 }
 
 // INIT
-if (name && name.length > 0) {
-    showValentine(name);
+if (name) {
+    valNameSpan.textContent = name;
+    mainTitle.innerHTML = `${texts[lang].title}<span class="name">${name}</span>${texts[lang].titleEnd}`;
+    generator.classList.add('hidden');
+    valentines.classList.remove('hidden');
+
+    // QR
+    const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}`;
+    new QRCode(qrDiv, {
+        text: link,
+        width: 240,
+        height: 240,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
 } else {
     generator.classList.remove('hidden');
 }
