@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Валентинка 💕</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -408,14 +408,17 @@ if (name) {
         qrContainer.classList.remove('hidden');
         shareButtons.classList.remove('hidden');
         const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}&share=false`;
-        new QRCode(qrDiv, {
-            text: link,
-            width: 240,
-            height: 240,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        const qr = qrcode(0, 'H');          // 0 = auto version, 'H' = найвищий рівень корекції
+qr.addData(link);
+qr.make();
+
+const qrImage = qr.createImgTag({
+    scalable: true,
+    cellSize: 8,                    // розмір пікселя
+    margin: 4
+});
+
+qrDiv.innerHTML = qrImage;
     }
 } else {
     generator.classList.remove('hidden');
