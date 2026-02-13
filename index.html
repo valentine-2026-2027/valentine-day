@@ -88,10 +88,36 @@
             border-color: white;
         }
 
+        /* CAPTCHA стилі */
+        #captchaModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000; display: none;
+            justify-content: center; align-items: center; flex-direction: column;
+        }
+        #captchaContent {
+            background: linear-gradient(135deg, #005BBB, #FFD500, #E31A1C); padding: 40px;
+            border-radius: 20px; max-width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            max-height: 85vh; overflow-y: auto; border: 4px solid white;
+        }
+        #captchaContent h2 { font-size: 2.2rem; margin-bottom: 25px; text-shadow: 2px 2px 4px black; }
+        #captchaContent p { font-size: 1.3rem; margin-bottom: 20px; font-weight: bold; }
+        #captchaInput, #captchaInput2 {
+            padding: 15px; font-size: 1.4rem; width: 85%; max-width: 400px;
+            border-radius: 12px; border: none; text-align: center; margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+        #captchaBtn, #captchaBtn2 {
+            padding: 16px 40px; font-size: 1.3rem; background: #00ff9d; color: #000;
+            border: none; border-radius: 12px; cursor: pointer; margin-top: 15px;
+            font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
         @media (max-width: 500px) {
             .btn { padding: 14px 36px; font-size: 1.2rem; min-width: 140px; }
             h1 { font-size: 2.4rem; }
-            .back-link { margin-top: 40px; font-size: 1rem; }
+            #captchaContent { padding: 25px; }
+            #captchaContent h2 { font-size: 1.8rem; }
+            #captchaInput, #captchaInput2 { font-size: 1.2rem; padding: 12px; }
         }
     </style>
 </head>
@@ -128,10 +154,23 @@
         <button class="btn" onclick="copyLink()">Скопіювати посилання</button>
     </div>
 
-    <!-- Посилання на генератор внизу сторінки валентинки -->
     <div class="back-link">
         Хочеш створити валентинку для когось іншого? → 
         <a href="https://valentine-2026-2027.github.io/valentine-day/" target="_blank">Створити нову</a>
+    </div>
+</div>
+
+<!-- CAPTCHA модалка -->
+<div id="captchaModal">
+    <div id="captchaContent">
+        <h2 id="captchaTitle">Патріотична перевірка 🇺🇦</h2>
+        <p id="captchaQuestion1"></p>
+        <input type="text" id="captchaInput" placeholder="Твоя відповідь..." autocomplete="off">
+        <button id="captchaBtn">Перевірити</button>
+
+        <p id="captchaQuestion2" style="display:none; margin-top:30px;"></p>
+        <input type="text" id="captchaInput2" placeholder="Твоя відповідь..." autocomplete="off" style="display:none;">
+        <button id="captchaBtn2" style="display:none;">Перевірити</button>
     </div>
 </div>
 
@@ -146,7 +185,15 @@ const texts = {
         placeholder: "Введи ім'я...",
         qrText: "Скануй, щоб відкрити",
         alertYes: "Я знав(ла), що скажеш ТАК! 😍💖",
-        alertNo: "Ну як то ні? 😭"
+        alertNo: "Ну як то ні? 😭",
+        invalidName: "Невірне ім'я. Тільки літери (укр/англ)",
+        captchaTitle: "Патріотична перевірка 🇺🇦",
+        q1: "Слава Україні!",
+        q1Answer: "героям слава",
+        q1Success: "Героям слава! 🇺🇦🔥",
+        q2: "Як називаються українські війська (укорочено)?",
+        q2Answer: "ЗСУ",
+        q2Success: "Слава ЗСУ! 💪🇺🇦"
     },
     en: {
         title: "Will you be my valentine, ",
@@ -157,7 +204,15 @@ const texts = {
         placeholder: "Enter name...",
         qrText: "Scan to open",
         alertYes: "I knew you'd say YES! 😍💖",
-        alertNo: "How can it be no? 😭"
+        alertNo: "How can it be no? 😭",
+        invalidName: "Invalid name. Only letters (Ukr/Eng)",
+        captchaTitle: "Patriotic Check 🇺🇦",
+        q1: "Glory to Ukraine!",
+        q1Answer: "glory to the heroes",
+        q1Success: "Glory to the heroes! 🇺🇦🔥",
+        q2: "What's the name of Ukrainian army (short)?",
+        q2Answer: "AFU",
+        q2Success: "Glory to AFU! 💪🇺🇦"
     }
 };
 
@@ -179,6 +234,18 @@ const qrContainer = document.getElementById('qrContainer');
 const qrDiv = document.getElementById('qrcode');
 const qrTextP = document.getElementById('qrText');
 const shareButtons = document.getElementById('shareButtons');
+
+// CAPTCHA
+const captchaModal = document.getElementById('captchaModal');
+const captchaTitle = document.getElementById('captchaTitle');
+const captchaQuestion1 = document.getElementById('captchaQuestion1');
+const captchaInput = document.getElementById('captchaInput');
+const captchaBtn = document.getElementById('captchaBtn');
+const captchaQuestion2 = document.getElementById('captchaQuestion2');
+const captchaInput2 = document.getElementById('captchaInput2');
+const captchaBtn2 = document.getElementById('captchaBtn2');
+
+let pendingName = '';
 
 function setLang(newLang) {
     lang = newLang;
@@ -210,17 +277,91 @@ function createHeart() {
 }
 setInterval(createHeart, 800);
 
+function showCaptcha(nameVal) {
+    pendingName = nameVal;
+    captchaTitle.textContent = texts[lang].captchaTitle;
+    captchaQuestion1.textContent = texts[lang].q1;
+    captchaInput.value = '';
+    captchaQuestion2.style.display = 'none';
+    captchaInput2.style.display = 'none';
+    captchaBtn2.style.display = 'none';
+    captchaModal.style.display = 'flex';
+}
+
+function checkCaptcha1() {
+    const answer = captchaInput.value.trim().toLowerCase().replace(/\s+/g, ' ');
+    const correct = texts[lang].q1Answer.toLowerCase();
+    if (levenshteinDistance(answer, correct) <= Math.floor(correct.length * 0.35)) {
+        captchaQuestion1.textContent = texts[lang].q1Success;
+        setTimeout(() => {
+            captchaQuestion2.textContent = texts[lang].q2;
+            captchaQuestion2.style.display = 'block';
+            captchaInput2.style.display = 'block';
+            captchaBtn2.style.display = 'block';
+            captchaInput.style.display = 'none';
+            captchaBtn.style.display = 'none';
+            captchaInput2.focus();
+        }, 1200);
+    } else {
+        alert('Неправильно! Спробуй ще раз 💪');
+        captchaInput.value = '';
+        captchaInput.focus();
+    }
+}
+
+function checkCaptcha2() {
+    const answer = captchaInput2.value.trim().toLowerCase().replace(/\s+/g, ' ');
+    const correct = texts[lang].q2Answer.toLowerCase();
+    if (levenshteinDistance(answer, correct) <= Math.floor(correct.length * 0.35)) {
+        captchaQuestion2.textContent = texts[lang].q2Success;
+        setTimeout(() => {
+            captchaModal.style.display = 'none';
+            // Переходимо на сторінку з ім'ям
+            const url = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(pendingName)}&share=true`;
+            window.location.href = url;
+        }, 1500);
+    } else {
+        alert('Неправильно! Спробуй ще раз 💪');
+        captchaInput2.value = '';
+        captchaInput2.focus();
+    }
+}
+
+// Функція відстані Левенштейна (для помилок у відповідях)
+function levenshteinDistance(a, b) {
+    const matrix = Array(b.length + 1).fill().map(() => Array(a.length + 1).fill(0));
+    for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
+    for (let j = 0; j <= b.length; j++) matrix[j][0] = j;
+    for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
+            const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[j][i] = Math.min(
+                matrix[j][i - 1] + 1,          // deletion
+                matrix[j - 1][i] + 1,          // insertion
+                matrix[j - 1][i - 1] + indicator // substitution
+            );
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
 function generateValentine() {
-    const val = nameInput.value.trim();
+    let val = nameInput.value.trim();
     if (!val) {
         alert(lang === 'uk' ? "Введи ім'я будь ласка 💕" : "Please enter a name 💕");
         return;
     }
-    const url = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(val)}&share=true`;
-    window.location.href = url;
+    if (!/^[a-zA-Zа-яА-ЯіїІЇєЄґҐ]+$/.test(val)) {
+        alert(texts[lang].invalidName);
+        return;
+    }
+    showCaptcha(val);
 }
 
 createBtn.onclick = generateValentine;
+captchaBtn.onclick = checkCaptcha1;
+captchaBtn2.onclick = checkCaptcha2;
+
 yesBtn.onclick = () => alert(texts[lang].alertYes);
 
 noBtn.onclick = function noFn() {
