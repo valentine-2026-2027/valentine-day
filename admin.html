@@ -5,77 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Адмін-панель 💀</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #111; color: #0f0; padding: 40px; text-align: center; }
-        #login { max-width: 400px; margin: 100px auto; }
-        input { padding: 12px; font-size: 18px; width: 100%; margin: 10px 0; }
-        button { padding: 12px 30px; background: #0f0; color: black; border: none; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a0a url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23000"/><text x="50" y="55" font-size="60" text-anchor="middle" fill="%2300ff00">ADMIN</text></svg>') repeat;
+            color: #0f0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #login, #panel {
+            background: rgba(0,0,0,0.85);
+            padding: 50px 70px;
+            border-radius: 20px;
+            border: 3px solid #0f0;
+            max-width: 600px;
+            box-shadow: 0 0 40px rgba(0,255,0,0.4);
+        }
+        h1 { margin-bottom: 30px; text-shadow: 0 0 15px #0f0; font-size: 2.5rem; }
+        input {
+            padding: 16px;
+            font-size: 1.3rem;
+            width: 100%;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid #0f0;
+            background: #111;
+            color: #0f0;
+        }
+        button {
+            padding: 16px 50px;
+            font-size: 1.3rem;
+            background: #0f0;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #00ff55; transform: scale(1.05); }
         #panel { display: none; }
         .hidden { display: none; }
+        ul { list-style: none; padding: 0; text-align: left; margin-top: 30px; }
+        li { margin: 15px 0; font-size: 1.2rem; }
+        .info { color: #0f8; margin: 20px 0; }
     </style>
 </head>
 <body>
 
 <div id="login">
-    <h1>Вхід в адмінку</h1>
-    <input type="password" id="pass" placeholder="Пароль...">
-    <button onclick="checkPass()">Увійти</button>
+    <h1>Вхід в адмін-панель</h1>
+    <p>Тільки розробник знає пароль</p>
+    <input type="password" id="pass" placeholder="Введи секретний код..." autocomplete="off">
+    <br>
+    <button onclick="checkAdmin()">Увійти</button>
 </div>
 
 <div id="panel" class="hidden">
-    <h1>Адмін-панель — тільки для тебе</h1>
-    <p>Тут буде вся інфа, яку ти захочеш:</p>
+    <h1>Привіт, розробник! 💀</h1>
+    <p class="info">Це твоя особиста адмін-панель. Поки що тут заглушка, але можна додати що завгодно.</p>
+
+    <h3>Поточна статистика (приклад)</h3>
     <ul>
-        <li>Кількість створених валентинок: <span id="count">0</span></li>
-        <li>Останні імена: <ul id="names"></ul></li>
-        <!-- сюди можна додати більше -->
+        <li>Кількість створених валентинок: <strong id="fakeCount">42</strong></li>
+        <li>Останні імена: 
+            <ul>
+                <li>Оля</li>
+                <li>Nikita</li>
+                <li>Саша</li>
+            </ul>
+        </li>
+        <li>Останній вхід: <em id="lastLogin">сьогодні о 17:03</em></li>
     </ul>
+
     <button onclick="logout()">Вийти</button>
 </div>
 
 <script>
-const SECRET_PASS = "1984"; // Зміни на свій!
+    // ЗМІНИ ЦЕЙ ПАРОЛЬ НА СВІЙ (можна дуже довгий і складний)
+    const SECRET_CODE = "****";  // ← тут твій пароль
 
-function checkPass() {
-    const input = document.getElementById("pass").value;
-    if (input === SECRET_PASS) {
+    function checkAdmin() {
+        const input = document.getElementById("pass").value.trim();
+        if (input === SECRET_CODE) {
+            document.getElementById("login").classList.add("hidden");
+            document.getElementById("panel").classList.remove("hidden");
+            // Просто показуємо панель — без збереження
+            document.getElementById("lastLogin").textContent = new Date().toLocaleString("uk-UA");
+        } else {
+            alert("Неправильно! Доступ заборонено.");
+            document.getElementById("pass").value = "";
+            document.getElementById("pass").focus();
+        }
+    }
+
+    function logout() {
+        document.getElementById("panel").classList.add("hidden");
+        document.getElementById("login").classList.remove("hidden");
+        document.getElementById("pass").value = "";
+    }
+
+    // Якщо хочеш — можна додати автологін за якимось ключем у URL (наприклад ?admin=твійтокен)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === 'твій_секретний_токен_для_швидкого_входу') {
         document.getElementById("login").classList.add("hidden");
         document.getElementById("panel").classList.remove("hidden");
-        loadData(); // завантажуємо дані
-    } else {
-        alert("Неправильний пароль, йди геть!");
     }
-}
-
-function logout() {
-    document.getElementById("panel").classList.add("hidden");
-    document.getElementById("login").classList.remove("hidden");
-    document.getElementById("pass").value = "";
-}
-
-// Приклад збереження/завантаження даних (localStorage — видно тільки в твоєму браузері)
-function loadData() {
-    const count = localStorage.getItem("valentineCount") || 0;
-    document.getElementById("count").textContent = count;
-
-    const names = JSON.parse(localStorage.getItem("valentineNames")) || [];
-    const list = document.getElementById("names");
-    list.innerHTML = "";
-    names.forEach(n => {
-        const li = document.createElement("li");
-        li.textContent = n;
-        list.appendChild(li);
-    });
-}
-
-// Приклад як додавати дані з головної сторінки (встав це в свій основний скрипт)
-function saveValentine(name) {
-    let count = parseInt(localStorage.getItem("valentineCount") || "0") + 1;
-    localStorage.setItem("valentineCount", count);
-
-    let names = JSON.parse(localStorage.getItem("valentineNames")) || [];
-    names.push(name + " — " + new Date().toLocaleString());
-    localStorage.setItem("valentineNames", JSON.stringify(names));
-}
 </script>
 </body>
 </html>
