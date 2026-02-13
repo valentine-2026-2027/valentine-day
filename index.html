@@ -71,9 +71,27 @@
         }
         .hidden { display: none !important; }
 
+        .back-link {
+            margin-top: 60px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .back-link a {
+            color: #fff200;
+            text-decoration: none;
+            border-bottom: 2px solid #fff200;
+            padding-bottom: 3px;
+            transition: all 0.2s;
+        }
+        .back-link a:hover {
+            color: white;
+            border-color: white;
+        }
+
         @media (max-width: 500px) {
             .btn { padding: 14px 36px; font-size: 1.2rem; min-width: 140px; }
             h1 { font-size: 2.4rem; }
+            .back-link { margin-top: 40px; font-size: 1rem; }
         }
     </style>
 </head>
@@ -109,6 +127,12 @@
         <button class="btn" onclick="downloadQR()">Скачати QR</button>
         <button class="btn" onclick="copyLink()">Скопіювати посилання</button>
     </div>
+
+    <!-- Посилання на генератор внизу сторінки валентинки -->
+    <div class="back-link">
+        Хочеш створити валентинку для когось іншого? → 
+        <a href="https://valentine-2026-2027.github.io/valentine-day/" target="_blank">Створити нову</a>
+    </div>
 </div>
 
 <script>
@@ -136,11 +160,13 @@ const texts = {
         alertNo: "How can it be no? 😭"
     }
 };
+
 let lang = 'uk';
 const urlParams = new URLSearchParams(window.location.search);
 let name = urlParams.get('name');
 name = name ? decodeURIComponent(name).trim() : '';
 const share = urlParams.get('share') !== 'false';
+
 const generator = document.getElementById('generator');
 const valentines = document.getElementById('valentines');
 const mainTitle = document.getElementById('mainTitle');
@@ -153,10 +179,12 @@ const qrContainer = document.getElementById('qrContainer');
 const qrDiv = document.getElementById('qrcode');
 const qrTextP = document.getElementById('qrText');
 const shareButtons = document.getElementById('shareButtons');
+
 function setLang(newLang) {
     lang = newLang;
     document.querySelectorAll('.flag-btn').forEach(b => b.classList.remove('active'));
     document.querySelector(`.flag-btn[data-lang="${lang}"]`).classList.add('active');
+
     if (name) {
         mainTitle.innerHTML = `${texts[lang].title}<span class="name">${name}</span>${texts[lang].titleEnd}`;
         yesBtn.textContent = texts[lang].yes;
@@ -167,6 +195,7 @@ function setLang(newLang) {
     }
     qrTextP.textContent = texts[lang].qrText;
 }
+
 function createHeart() {
     const h = document.createElement('div');
     h.className = 'heart';
@@ -180,6 +209,7 @@ function createHeart() {
     setTimeout(() => h.remove(), 18000);
 }
 setInterval(createHeart, 800);
+
 function generateValentine() {
     const val = nameInput.value.trim();
     if (!val) {
@@ -189,9 +219,10 @@ function generateValentine() {
     const url = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(val)}&share=true`;
     window.location.href = url;
 }
+
 createBtn.onclick = generateValentine;
 yesBtn.onclick = () => alert(texts[lang].alertYes);
-// --- Кнопка "Ні" тікає ---
+
 noBtn.onclick = function noFn() {
     const rect = noBtn.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width * 1.2;
@@ -208,6 +239,7 @@ noBtn.onclick = function noFn() {
         noBtn.style.color = '#000';
     }, 700);
 };
+
 function downloadQR() {
     const canvas = qrDiv.querySelector('canvas');
     if (!canvas) return;
@@ -216,18 +248,21 @@ function downloadQR() {
     a.href = canvas.toDataURL('image/png');
     a.click();
 }
+
 function copyLink() {
     const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}&share=false`;
     navigator.clipboard.writeText(link).then(() => {
         alert(lang === 'uk' ? "Посилання скопійовано! 💕" : "Link copied! 💕");
     }).catch(() => alert(link));
 }
+
 // INIT
 if (name) {
     valNameSpan.textContent = name;
     mainTitle.innerHTML = `${texts[lang].title}<span class="name">${name}</span>${texts[lang].titleEnd}`;
     generator.classList.add('hidden');
     valentines.classList.remove('hidden');
+
     if (share) {
         qrContainer.classList.remove('hidden');
         shareButtons.classList.remove('hidden');
@@ -244,6 +279,7 @@ if (name) {
 } else {
     generator.classList.remove('hidden');
 }
+
 setLang('uk');
 </script>
 </body>
