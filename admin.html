@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін-панель 💀</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111; color: #0f0; padding: 40px; text-align: center; }
+        #login { max-width: 400px; margin: 100px auto; }
+        input { padding: 12px; font-size: 18px; width: 100%; margin: 10px 0; }
+        button { padding: 12px 30px; background: #0f0; color: black; border: none; cursor: pointer; }
+        #panel { display: none; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="login">
+    <h1>Вхід в адмінку</h1>
+    <input type="password" id="pass" placeholder="Пароль...">
+    <button onclick="checkPass()">Увійти</button>
+</div>
+
+<div id="panel" class="hidden">
+    <h1>Адмін-панель — тільки для тебе</h1>
+    <p>Тут буде вся інфа, яку ти захочеш:</p>
+    <ul>
+        <li>Кількість створених валентинок: <span id="count">0</span></li>
+        <li>Останні імена: <ul id="names"></ul></li>
+        <!-- сюди можна додати більше -->
+    </ul>
+    <button onclick="logout()">Вийти</button>
+</div>
+
+<script>
+const SECRET_PASS = "1984"; // Зміни на свій!
+
+function checkPass() {
+    const input = document.getElementById("pass").value;
+    if (input === SECRET_PASS) {
+        document.getElementById("login").classList.add("hidden");
+        document.getElementById("panel").classList.remove("hidden");
+        loadData(); // завантажуємо дані
+    } else {
+        alert("Неправильний пароль, йди геть!");
+    }
+}
+
+function logout() {
+    document.getElementById("panel").classList.add("hidden");
+    document.getElementById("login").classList.remove("hidden");
+    document.getElementById("pass").value = "";
+}
+
+// Приклад збереження/завантаження даних (localStorage — видно тільки в твоєму браузері)
+function loadData() {
+    const count = localStorage.getItem("valentineCount") || 0;
+    document.getElementById("count").textContent = count;
+
+    const names = JSON.parse(localStorage.getItem("valentineNames")) || [];
+    const list = document.getElementById("names");
+    list.innerHTML = "";
+    names.forEach(n => {
+        const li = document.createElement("li");
+        li.textContent = n;
+        list.appendChild(li);
+    });
+}
+
+// Приклад як додавати дані з головної сторінки (встав це в свій основний скрипт)
+function saveValentine(name) {
+    let count = parseInt(localStorage.getItem("valentineCount") || "0") + 1;
+    localStorage.setItem("valentineCount", count);
+
+    let names = JSON.parse(localStorage.getItem("valentineNames")) || [];
+    names.push(name + " — " + new Date().toLocaleString());
+    localStorage.setItem("valentineNames", JSON.stringify(names));
+}
+</script>
+</body>
+</html>
