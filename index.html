@@ -49,7 +49,7 @@
         #createBtn { background: #00ff9d; color: #000; }
         #createBtn:hover { transform: scale(1.06); }
         .yes { background: #00ff9d; color: #000; }
-        .no  { background: #ff4444; color: white; position: relative; }
+        .no { background: #ff4444; color: white; position: relative; }
         .no.moved {
             position: fixed !important;
             transform: scale(0.7);
@@ -70,7 +70,6 @@
             100% { transform: translateY(115vh) translateX(calc(var(--x) + var(--drift))) rotate(1080deg); opacity: 0; }
         }
         .hidden { display: none !important; }
-
         .back-link {
             margin-top: 60px;
             font-size: 1.1rem;
@@ -87,7 +86,6 @@
             color: white;
             border-color: white;
         }
-
         /* CAPTCHA стилі */
         #captchaModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -111,7 +109,6 @@
             border: none; border-radius: 12px; cursor: pointer; margin-top: 15px;
             font-weight: bold; box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
-
         @media (max-width: 500px) {
             .btn { padding: 14px 36px; font-size: 1.2rem; min-width: 140px; }
             h1 { font-size: 2.4rem; }
@@ -316,7 +313,6 @@ function checkCaptcha2() {
         captchaQuestion2.textContent = texts[lang].q2Success;
         setTimeout(() => {
             captchaModal.style.display = 'none';
-            // Переходимо на сторінку з ім'ям
             const url = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(pendingName)}&share=true`;
             window.location.href = url;
         }, 1500);
@@ -327,7 +323,6 @@ function checkCaptcha2() {
     }
 }
 
-// Функція відстані Левенштейна (для помилок у відповідях)
 function levenshteinDistance(a, b) {
     const matrix = Array(b.length + 1).fill().map(() => Array(a.length + 1).fill(0));
     for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
@@ -336,9 +331,9 @@ function levenshteinDistance(a, b) {
         for (let i = 1; i <= a.length; i++) {
             const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
             matrix[j][i] = Math.min(
-                matrix[j][i - 1] + 1,          // deletion
-                matrix[j - 1][i] + 1,          // insertion
-                matrix[j - 1][i - 1] + indicator // substitution
+                matrix[j][i - 1] + 1,
+                matrix[j - 1][i] + 1,
+                matrix[j - 1][i - 1] + indicator
             );
         }
     }
@@ -382,11 +377,11 @@ noBtn.onclick = function noFn() {
 };
 
 function downloadQR() {
-    const canvas = qrDiv.querySelector('canvas');
-    if (!canvas) return;
+    const img = qrDiv.querySelector('img');
+    if (!img) return;
     const a = document.createElement('a');
     a.download = `valentine-${name || 'secret'}.png`;
-    a.href = canvas.toDataURL('image/png');
+    a.href = img.src;
     a.click();
 }
 
@@ -407,18 +402,20 @@ if (name) {
     if (share) {
         qrContainer.classList.remove('hidden');
         shareButtons.classList.remove('hidden');
+
         const link = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}&share=false`;
-        const qr = qrcode(0, 'H');          // 0 = auto version, 'H' = найвищий рівень корекції
-qr.addData(link);
-qr.make();
 
-const qrImage = qr.createImgTag({
-    scalable: true,
-    cellSize: 8,                    // розмір пікселя
-    margin: 4
-});
+        // Правильне створення QR з qrcode-generator
+        const qr = qrcode(0, 'H'); // 0 = auto version, 'H' = high correction
+        qr.addData(link);
+        qr.make();
 
-qrDiv.innerHTML = qrImage;
+        // Створюємо зображення з потрібними параметрами
+        qrDiv.innerHTML = qr.createImgTag({
+            scalable: true,
+            cellSize: 8,     // розмір одного квадратика (як у старої бібліотеки)
+            margin: 4
+        });
     }
 } else {
     generator.classList.remove('hidden');
