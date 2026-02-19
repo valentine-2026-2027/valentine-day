@@ -97,7 +97,6 @@
     </style>
 </head>
 <body>
-
 <div class="lang-toggle">
     <button class="lang-btn active" onclick="setLang('uk')">Укр</button>
     <button class="lang-btn" onclick="setLang('en')">Eng</button>
@@ -105,13 +104,13 @@
 
 <div id="main">
     <h1 id="title">Прийшла нова валентинка! 💌</h1>
-    <button id="openBtn" onclick="rickroll()">Відкрити</button>
+    <button id="openBtn">Відкрити</button>
 </div>
 
 <div id="rickroll">
     <div id="rickText">Ти попався! 😈</div>
-    <iframe 
-        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&showinfo=0&rel=0&loop=1&playlist=dQw4w9WgXcQ" 
+    <iframe id="rickIframe" 
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&loop=1&playlist=dQw4w9WgXcQ&iv_load_policy=3" 
         frameborder="0" 
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
         allowfullscreen>
@@ -137,21 +136,22 @@ const texts = {
 function setLang(newLang) {
     lang = newLang;
     document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.lang-btn[onclick="setLang('${newLang}')"]`).classList.add('active');
+    event.target.classList.add('active');
     
     document.getElementById('title').textContent = texts[lang].title;
     document.getElementById('openBtn').textContent = texts[lang].open;
     document.getElementById('rickText').textContent = texts[lang].rick;
 }
 
-function rickroll() {
+// Фіксим автоплей: додаємо подію кліку
+document.getElementById('openBtn').addEventListener('click', function rickroll() {
     document.getElementById('main').style.display = 'none';
     document.getElementById('rickroll').style.display = 'flex';
-    
-    // Спроба автозапуску музики (працює не завжди через політику браузерів)
-    const iframe = document.querySelector('iframe');
-    iframe.src += ''; // перезавантажуємо для автоплей
-}
+
+    // Примусово запускаємо відео після взаємодії користувача
+    const iframe = document.getElementById('rickIframe');
+    iframe.src = iframe.src; // перезавантажуємо src після кліку
+});
 
 setLang('uk'); // старт українською
 </script>
