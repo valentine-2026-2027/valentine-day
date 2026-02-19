@@ -3,117 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Адмін-панель 💀</title>
+    <title>Валентинка 💌</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0a0a0a url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23000"/><text x="50" y="55" font-size="60" text-anchor="middle" fill="%2300ff00">ADMIN</text></svg>') repeat;
-            color: #0f0;
+        * {
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #ff3366, #cc33ff, #6633ff);
+            color: white;
+            height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
             text-align: center;
         }
-        #login, #panel {
-            background: rgba(0,0,0,0.85);
-            padding: 50px 70px;
-            border-radius: 20px;
-            border: 3px solid #0f0;
-            max-width: 600px;
-            box-shadow: 0 0 40px rgba(0,255,0,0.4);
+        h1 {
+            font-size: clamp(3rem, 10vw, 8rem);
+            margin-bottom: 40px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.8);
+            animation: pulse 2s infinite;
         }
-        h1 { margin-bottom: 30px; text-shadow: 0 0 15px #0f0; font-size: 2.5rem; }
-        input {
-            padding: 16px;
-            font-size: 1.3rem;
-            width: 100%;
-            margin: 20px 0;
-            border-radius: 10px;
-            border: 2px solid #0f0;
-            background: #111;
-            color: #0f0;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         button {
-            padding: 16px 50px;
-            font-size: 1.3rem;
-            background: #0f0;
+            padding: 20px 60px;
+            font-size: clamp(1.8rem, 6vw, 3rem);
+            font-weight: bold;
+            background: #00ff88;
             color: black;
             border: none;
-            border-radius: 10px;
+            border-radius: 999px;
             cursor: pointer;
-            font-weight: bold;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transition: all 0.3s;
         }
-        button:hover { background: #00ff55; transform: scale(1.05); }
-        #panel { display: none; }
-        .hidden { display: none; }
-        ul { list-style: none; padding: 0; text-align: left; margin-top: 30px; }
-        li { margin: 15px 0; font-size: 1.2rem; }
-        .info { color: #0f8; margin: 20px 0; }
+        button:hover {
+            transform: scale(1.1);
+            background: #00ffaa;
+        }
+        #rickroll {
+            position: fixed;
+            inset: 0;
+            background: black;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #rickroll iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        #rickText {
+            font-size: clamp(3rem, 12vw, 10rem);
+            color: #ff3366;
+            text-shadow: 0 0 40px white;
+            margin-bottom: 30px;
+            animation: bounce 1.5s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .lang-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .lang-btn {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        .lang-btn.active {
+            background: white;
+            color: black;
+        }
     </style>
 </head>
 <body>
 
-<div id="login">
-    <h1>Вхід в адмін-панель</h1>
-    <p>Тільки розробник знає пароль</p>
-    <input type="password" id="pass" placeholder="Введи секретний код..." autocomplete="off">
-    <br>
-    <button onclick="checkAdmin()">Увійти</button>
+<div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('uk')">Укр</button>
+    <button class="lang-btn" onclick="setLang('en')">Eng</button>
 </div>
 
-<div id="panel" class="hidden">
-    <h1>Привіт, розробник! 💀</h1>
-    <p class="info">Це твоя особиста адмін-панель. Поки що тут заглушка, але можна додати що завгодно.</p>
+<div id="main">
+    <h1 id="title">Прийшла нова валентинка! 💌</h1>
+    <button id="openBtn" onclick="rickroll()">Відкрити</button>
+</div>
 
-    <h3>Поточна статистика (приклад)</h3>
-    <ul>
-        <li>Кількість створених валентинок: <strong id="fakeCount">42</strong></li>
-        <li>Останні імена: 
-            <ul>
-                <li>Оля</li>
-                <li>Nikita</li>
-                <li>Саша</li>
-            </ul>
-        </li>
-        <li>Останній вхід: <em id="lastLogin">сьогодні о 17:03</em></li>
-    </ul>
-
-    <button onclick="logout()">Вийти</button>
+<div id="rickroll">
+    <div id="rickText">Ти попався! 😈</div>
+    <iframe 
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&showinfo=0&rel=0&loop=1&playlist=dQw4w9WgXcQ" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
 </div>
 
 <script>
-    // ЗМІНИ ЦЕЙ ПАРОЛЬ НА СВІЙ (можна дуже довгий і складний)
-    const SECRET_CODE = "****";  // ← тут твій пароль
+let lang = 'uk';
 
-    function checkAdmin() {
-        const input = document.getElementById("pass").value.trim();
-        if (input === SECRET_CODE) {
-            document.getElementById("login").classList.add("hidden");
-            document.getElementById("panel").classList.remove("hidden");
-            // Просто показуємо панель — без збереження
-            document.getElementById("lastLogin").textContent = new Date().toLocaleString("uk-UA");
-        } else {
-            alert("Неправильно! Доступ заборонено.");
-            document.getElementById("pass").value = "";
-            document.getElementById("pass").focus();
-        }
+const texts = {
+    uk: {
+        title: "Прийшла нова валентинка! 💌",
+        open: "Відкрити",
+        rick: "Ти попався! 😈"
+    },
+    en: {
+        title: "New valentine arrived! 💌",
+        open: "Open",
+        rick: "You got rickrolled! 😈"
     }
+};
 
-    function logout() {
-        document.getElementById("panel").classList.add("hidden");
-        document.getElementById("login").classList.remove("hidden");
-        document.getElementById("pass").value = "";
-    }
+function setLang(newLang) {
+    lang = newLang;
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.lang-btn[onclick="setLang('${newLang}')"]`).classList.add('active');
+    
+    document.getElementById('title').textContent = texts[lang].title;
+    document.getElementById('openBtn').textContent = texts[lang].open;
+    document.getElementById('rickText').textContent = texts[lang].rick;
+}
 
-    // Якщо хочеш — можна додати автологін за якимось ключем у URL (наприклад ?admin=твійтокен)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('admin') === 'твій_секретний_токен_для_швидкого_входу') {
-        document.getElementById("login").classList.add("hidden");
-        document.getElementById("panel").classList.remove("hidden");
-    }
+function rickroll() {
+    document.getElementById('main').style.display = 'none';
+    document.getElementById('rickroll').style.display = 'flex';
+    
+    // Спроба автозапуску музики (працює не завжди через політику браузерів)
+    const iframe = document.querySelector('iframe');
+    iframe.src += ''; // перезавантажуємо для автоплей
+}
+
+setLang('uk'); // старт українською
 </script>
 </body>
 </html>
